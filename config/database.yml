@@ -5,7 +5,7 @@
 #   gem 'sqlite3'
 #
 default: &default
-  adapter: sqlite3
+  adapter: postgresql
   pool: 5
   timeout: 5000
 
@@ -13,9 +13,11 @@ default: &default
 #  <<: *default
 #  database: db/development.sqlite3
 development:
-  adapter: mysql2
+  #adapter: mysql2
+  adapter: postgresql
   database: music_api
-  username: root
+  #username: root
+  username: postgres
   password:
   host: 127.0.0.1
   #socket: /tmp/mysql.sock

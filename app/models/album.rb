@@ -1,7 +1,8 @@
 class Album < ApplicationRecord
-  has_many :songs
+  include HasName
+
+  has_many :songs, dependent: :destroy
   belongs_to :artist
   validates :name, presence:true
 
-  include HasName
 end
