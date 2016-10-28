@@ -10,6 +10,6 @@ module V1
 
 
       mount V1::Artists
-
+      mount V1::Albums
     end
 end
