@@ -3,43 +3,66 @@ module V1
 
     helpers APIHelpers
 
+    helpers do
+      def format_entity(entity)
+        entity.as_json(:include => :albums)
+      end
+    end
+
     resource :artists do
 
       desc "Return list of artists"
       get do
-        Artist.all
+        format_entity Artist.all
       end
 
       desc "Return one artist"
       params do
-        requires :id, type: Integer
+        use :id
       end
       get ':id' do
-        show Artist.find_by_id(params[:id])
+        format_entity show(Artist.find_by_id(params[:id]))
       end
 
       desc "Add an artist"
       params do
         optional :bio, type: String, allow_blank: false
-        requires :name, type: String, allow_blank: false
+        use :name
+        optional :albums, type: JSON
       end
       post do
-        create {Artist.create(name: params[:name], bio: params[:bio])}
+        params[:albums]
+        o = create(Artist.new(name: params[:name], bio: params[:bio])) { |a|
+          add_to_collection(:albums, a.albums) { |item|
+            Album.new(name: item.name)
+          }
+          a.save
+        }
+        format_entity o
       end
 
       desc "Update an artist"
       params do
-        requires :id, type: Integer
+        use :id
+        use :optional_name
         optional :bio, type: String, allow_blank: false
-        optional :name, type: String, allow_blank: false
+        optional :albums, type: JSON
       end
       put ':id' do
-        update(Artist.find_by_id(params[:id])) { |a| a.update strong_params(params, :name, :bio) }
+        params[:albums]
+
+        o = update(Artist.find_by_id(params[:id])) { |a|
+          add_to_collection(:albums, a.albums) { |item|
+            Album.new(name: item.name)
+          }
+          a.update strong_params(params, :name, :bio)
+        }
+        format_entity o
       end
 
       desc "Delete an artist"
       params do
-        requires :id, type: Integer
+        use :id
       end
       delete ':id' do
         delete(Artist.find_by_id(params[:id])) {|a|
