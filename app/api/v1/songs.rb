@@ -5,7 +5,7 @@ module V1
 
     helpers do
       def format_entity(entity)
-        entity.as_json(include: :album, except: :album_id)
+        entity.as_json(include: {album: {except: :artist_id, include: :artist}}, except: :album_id)
       end
     end
 

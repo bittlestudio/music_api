@@ -1,11 +1,19 @@
 module V1
   class Albums < Grape::API
 
+    UPLOADS_PATH = '/uploads/albums/'
+
     helpers APIHelpers
 
     helpers do
       def format_entity(entity)
-        entity.as_json(include: [:artist, :songs], except: [:artist_id])
+        o = entity.as_json(include: [:artist, {songs:{except: :album_id}}], except: [:artist_id])
+
+        if (o['album_art'])
+          path = request.env['rack.url_scheme'] + '://' + request.env['HTTP_HOST'] + UPLOADS_PATH + o['id'].to_s + '/'
+          o['album_art'] = path + o['album_art']
+        end
+        o
       end
     end
 
@@ -40,7 +48,7 @@ module V1
           if a.save
             if params[:album_art]
               file = ActionDispatch::Http::UploadedFile.new(params[:album_art])
-              UploadHelper::upload_file("public/uploads/albums/#{a.id}", file)
+              UploadHelper::upload_file("public/#{UPLOADS_PATH}#{a.id}", file)
               a.album_art = file.original_filename
               a.save
             else
@@ -67,7 +75,7 @@ module V1
 
           if params[:album_art]
             file = ActionDispatch::Http::UploadedFile.new(params[:album_art])
-            path = "public/uploads/albums/#{a.id}"
+            path = "public/#{UPLOADS_PATH}#{a.id}"
 
             UploadHelper::delete_file(path, a.album_art) if a.album_art
             UploadHelper::upload_file(path, file)

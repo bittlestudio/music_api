@@ -5,7 +5,7 @@ module V1
 
     helpers do
       def format_entity(entity)
-        entity.as_json(:include => :albums)
+        entity.as_json(:include => {albums:{except: :artist_id}})
       end
 
       params :bio do
