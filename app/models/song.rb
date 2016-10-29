@@ -6,4 +6,11 @@ class Song < ApplicationRecord
   validates :name, presence:true
   validates :duration, presence:true, numericality: { only_integer: true }
 
+  def duration
+    Time.at(self[:duration]).strftime("%M:%S") if self[:duration]
+  end
+
+  def seconds
+    self[:duration]
+  end
 end
