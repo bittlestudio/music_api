@@ -9,6 +9,10 @@ module V1
       end
     end
 
+    params :bio do
+      optional :bio, type: String, allow_blank: false
+    end
+
     resource :artists do
 
       desc "Return list of artists"
@@ -26,7 +30,7 @@ module V1
 
       desc "Add an artist"
       params do
-        optional :bio, type: String, allow_blank: false
+        use :bio
         use :name
         optional :albums, type: JSON
       end
@@ -45,7 +49,7 @@ module V1
       params do
         use :id
         use :optional_name
-        optional :bio, type: String, allow_blank: false
+        use :bio
         optional :albums, type: JSON
       end
       put ':id' do
