@@ -27,6 +27,7 @@ module APIHelpers
 
   def create(entity)
     if yield entity
+      header 'Location', request.url + '/' + entity.id.to_s
       entity
     else
       raise entity.errors.to_a.join ', '
