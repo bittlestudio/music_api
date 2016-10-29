@@ -7,10 +7,10 @@ module V1
       def format_entity(entity)
         entity.as_json(:include => :albums)
       end
-    end
 
-    params :bio do
-      optional :bio, type: String, allow_blank: false
+      params :bio do
+        optional :bio, type: String, allow_blank: false
+      end
     end
 
     resource :artists do
