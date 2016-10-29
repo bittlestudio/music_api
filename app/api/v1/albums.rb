@@ -5,7 +5,7 @@ module V1
 
     helpers do
       def format_entity(entity)
-        entity.as_json(include: [:artist, :songs], except: :artist_id)
+        entity.as_json(include: [:artist, :songs], except: [:artist_id])
       end
     end
 
@@ -28,6 +28,7 @@ module V1
       params do
         requires :artist_id, type: Integer
         use :name
+        optional :album_art, type:File
         optional :songs, type: JSON
       end
       post do
@@ -35,7 +36,17 @@ module V1
           add_to_collection(:songs, a.songs) { |item|
             Song.new(name: item.name, duration: item.duration)
           }
-          a.save
+
+          if a.save
+            if params[:album_art]
+              file = ActionDispatch::Http::UploadedFile.new(params[:album_art])
+              UploadHelper::upload_file("public/uploads/albums/#{a.id}", file)
+              a.album_art = file.original_filename
+              a.save
+            else
+              true
+            end
+          end
         }
         format_entity o
       end
@@ -46,14 +57,26 @@ module V1
         use :optional_name
         optional :artist_id, type: Integer
         optional :songs, type: JSON
+        optional :album_art, type:File
       end
       put ':id' do
         o = update(Album.find_by_id(params[:id])) { |a|
           add_to_collection(:songs, a.songs) { |item|
             Song.new(name: item.name, duration: item.duration)
           }
+
+          if params[:album_art]
+            file = ActionDispatch::Http::UploadedFile.new(params[:album_art])
+            path = "public/uploads/albums/#{a.id}"
+
+            UploadHelper::delete_file(path, a.album_art)
+            UploadHelper::upload_file(path, file)
+            a.album_art = file.original_filename
+          end
           a.update strong_params(params, :name, :artist_id)
         }
+        #params.album_art.type
+        #params.avatar.type     # => 'image/png'
         format_entity o
       end
 
