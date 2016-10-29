@@ -11,5 +11,6 @@ module V1
       mount V1::Artists
       mount V1::Albums
       mount V1::Songs
+      mount V1::Playlists
     end
 end
