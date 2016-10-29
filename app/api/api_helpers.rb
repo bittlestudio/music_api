@@ -29,7 +29,7 @@ module APIHelpers
     if yield entity
       entity
     else
-      raise entity.errors.to_a.join ", "
+      raise entity.errors.to_a.join ', '
     end
 
     rescue Exception => msg
@@ -43,7 +43,7 @@ module APIHelpers
     if yield a
       a
     else
-      raise a.errors.to_a.join ", "
+      raise a.errors.to_a.join ', '
     end
     rescue Exception => msg
       error! msg, 422
