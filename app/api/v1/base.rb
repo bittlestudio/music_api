@@ -8,8 +8,8 @@ module V1
 
       default_format :json
 
-
       mount V1::Artists
       mount V1::Albums
+      mount V1::Songs
     end
 end
