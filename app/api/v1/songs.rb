@@ -42,7 +42,7 @@ module V1
         use :id
         use :optional_name
         optional :duration, type:Integer
-        requires :album_id, type:Integer
+        optional :album_id, type:Integer
       end
       put ':id' do
         o = update(Song.find_by_id(params[:id])) { |a|
