@@ -13,6 +13,18 @@ module APIHelpers
     requires :id, type: Integer
   end
 
+  def album_uploads_path
+    '/uploads/albums/'
+  end
+
+  def generate_album_url(id, filename)
+    request.env['rack.url_scheme'] + '://' + request.env['HTTP_HOST'] + album_uploads_path + id.to_s + '/'
+  end
+
+  def set_album_url (album)
+    album.data_url = generate_album_url album.id, album.album_art
+  end
+
   def strong_params(params, *keys)
     ret = {}
     keys.each do |key|

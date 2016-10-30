@@ -5,7 +5,20 @@ module V1
 
     helpers do
       def format_entity(entity)
-        entity.as_json(:include => {albums:{except: :artist_id}})
+
+        if entity.respond_to? :each
+          entity.each do |e|
+            e.albums.each do |a|
+              set_album_url (a)
+            end
+          end
+        else
+          entity.albums.each do |a|
+            set_album_url (a)
+          end
+        end
+
+        entity.as_json(:include => {albums: {except: [:artist_id, :album_art], methods: :full_album_url}})
       end
 
       params :bio do
@@ -17,7 +30,7 @@ module V1
 
       desc "Return list of artists"
       get do
-        format_entity Artist.all
+        format_entity Artist.includes(:albums).all
       end
 
       desc "Return one artist"
