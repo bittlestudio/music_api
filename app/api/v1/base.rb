@@ -17,7 +17,7 @@ module V1
       add_swagger_documentation(
           info: {
               title: "Music API",
-              description: "This test API lets you manage most common resouces of a basic music service API.",
+              description: "This test API lets you manage most common resources of a basic music service API.",
               contact_name: "Martin Zaleski",
               contact_email: "martinza@gmail.com"
           },
