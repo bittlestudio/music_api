@@ -48,7 +48,9 @@ module V1
       put ':id' do
         o = update(Playlist.find_by_id(params[:id])) { |a|
           add_to_collection(:songs, a.songs) { |item|
-            Song.find_by_id(item.id)
+            s = Song.find_by_id(item.id)
+            raise "Song does not exist" unless s
+            s
           }
           a.update strong_params(params, :name)
         }
@@ -68,11 +70,19 @@ module V1
       desc "Delete songs from playlist"
       params do
         use :id
-        requires :song, type: JSON
+        #requires :song_id, type: Integer
+        requires :songs, type: JSON
       end
       delete ':id/songs' do
-        Playlist.find_by_id(params[:id]).songs.delete(params[:song_id])
-        status 204
+
+        delete(Playlist.find_by_id(params[:id])) do |p|
+          params[:songs].each do |item|
+            s = Song.find_by_id(item.id)
+            raise "Song does not exist" unless s
+            p.songs.delete(Song.find_by_id(s.id))
+          end
+        end
+
       end
 
     end
