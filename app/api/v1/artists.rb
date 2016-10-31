@@ -22,18 +22,18 @@ module V1
       end
 
       params :bio do
-        optional :bio, type: String, allow_blank: false
+        optional :bio, type: String, allow_blank: false, desc: "Biography text of the artist."
       end
     end
 
     resource :artists do
 
-      desc "Return list of artists"
+      desc "Returns list of artists."
       get do
         format_entity Artist.includes(:albums).all
       end
 
-      desc "Return one artist"
+      desc "Returns one artist."
       params do
         use :id
       end
@@ -41,11 +41,11 @@ module V1
         format_entity show(Artist.find_by_id(params[:id]))
       end
 
-      desc "Add an artist"
+      desc "Adds an artist."
       params do
         use :bio
         use :name
-        optional :albums, type: JSON
+        optional :albums, type: JSON, desc: "Collection of albums of this artist. Accepts name."
       end
       post do
         params[:albums]
@@ -58,12 +58,12 @@ module V1
         format_entity o
       end
 
-      desc "Update an artist"
+      desc "Updates an artist."
       params do
         use :id
         use :optional_name
         use :bio
-        optional :albums, type: JSON
+        optional :albums, type: JSON, desc: "Collection of albums of this artist. Accepts name."
       end
       put ':id' do
         params[:albums]
@@ -77,7 +77,7 @@ module V1
         format_entity o
       end
 
-      desc "Delete an artist"
+      desc "Deletes an artist."
       params do
         use :id
       end

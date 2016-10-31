@@ -11,12 +11,12 @@ module V1
 
     resource :playlists do
 
-      desc "Return list of playlists"
+      desc "Returns list of playlists."
       get do
         format_entity Playlist.all
       end
 
-      desc "Return one playist"
+      desc "Returns one playist."
       params do
         use :id
       end
@@ -24,10 +24,10 @@ module V1
         format_entity show(Playlist.find_by_id(params[:id]))
       end
 
-      desc "Add a playlist"
+      desc "Adds a playlist."
       params do
         use :name
-        optional :songs, type: JSON
+        optional :songs, type: JSON, desc: "Collection of songs of this album. Accepts song ID."
       end
       post do
         o = create(Playlist.new(name: params[:name])){ |a|
@@ -39,11 +39,11 @@ module V1
         format_entity o
       end
 
-      desc "Update a playlist"
+      desc "Updates a playlist."
       params do
         use :id
         use :optional_name
-        optional :songs, type: JSON
+        optional :songs, type: JSON, desc: "Collection of songs of this album. Accepts song ID."
       end
       put ':id' do
         o = update(Playlist.find_by_id(params[:id])) { |a|
@@ -57,7 +57,7 @@ module V1
         format_entity o
       end
 
-      desc "Delete a playlist"
+      desc "Deletes a playlist."
       params do
         use :id
       end
@@ -67,11 +67,11 @@ module V1
         }
       end
 
-      desc "Delete songs from playlist"
+      desc "Deletes songs from playlist."
       params do
         use :id
         #requires :song_id, type: Integer
-        requires :songs, type: JSON
+        requires :songs, type: JSON, desc: "Collection of songs to delete. Accepts song ID."
       end
       delete ':id/songs' do
 

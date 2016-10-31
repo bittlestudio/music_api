@@ -21,12 +21,12 @@ module V1
 
     resource :albums do
 
-      desc "Return list of albums"
+      desc "Returns list of albums."
       get do
         format_entity Album.all
       end
 
-      desc "Return one album"
+      desc "Returns one album."
       params do
         use :id
       end
@@ -34,12 +34,12 @@ module V1
         format_entity (show(Album.find_by_id(params[:id])))
       end
 
-      desc "Add an album"
+      desc "Adds an album."
       params do
-        requires :artist_id, type: Integer
         use :name
-        optional :album_art, type:File
-        optional :songs, type: JSON
+        requires :artist_id, type: Integer, desc: "ID of the artist this album belongs to."
+        optional :songs, type: JSON, desc: "Collection of songs of this album. Accepts name and duration in seconds."
+        optional :album_art, type:File, desc: "Album cover file. Must be .jpg, .png or .gif. Maximum size: 256 KB."
       end
       post do
         o = create(Album.new(name: params[:name], artist_id: params[:artist_id])){ |a|
@@ -65,13 +65,13 @@ module V1
         format_entity o
       end
 
-      desc "Update an album"
+      desc "Updates an album."
       params do
         use :id
         use :optional_name
-        optional :artist_id, type: Integer
-        optional :songs, type: JSON
-        optional :album_art, type:File
+        optional :artist_id, type: Integer, desc: "ID of the artist this album belongs to."
+        optional :songs, type: JSON, desc: "Collection of songs of this album. Accepts name and duration in seconds."
+        optional :album_art, type:File, desc: "Album cover file. Must be .jpg, .png or .gif. Maximum size: 256 KB."
       end
       put ':id' do
         o = update(Album.find_by_id(params[:id])) { |a|
@@ -98,7 +98,7 @@ module V1
         format_entity o
       end
 
-      desc "Delete an album"
+      desc "Deletes an album."
       params do
         use :id
       end

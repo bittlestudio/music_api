@@ -20,12 +20,12 @@ module V1
 
     resource :songs do
 
-      desc "Return list of songs"
+      desc "Returns list of songs."
       get do
         format_entity Song.all
       end
 
-      desc "Return one song"
+      desc "Returns one song."
       params do
         use :id
       end
@@ -33,11 +33,11 @@ module V1
         format_entity show(Song.find_by_id(params[:id]))
       end
 
-      desc "Add a song"
+      desc "Adds a song."
       params do
         use :name
-        requires :duration, type:Integer
-        requires :album_id, type:Integer
+        requires :duration, type:Integer, desc: "Duration of song in seconds."
+        requires :album_id, type:Integer, desc: "ID of the album the song belongs to."
       end
       post do
         o = create(Song.new(name: params[:name], album_id: params[:album_id], duration: params[:duration])){ |a|
@@ -46,12 +46,12 @@ module V1
         format_entity o
       end
 
-      desc "Update a song"
+      desc "Updates a song."
       params do
         use :id
         use :optional_name
-        optional :duration, type:Integer
-        optional :album_id, type:Integer
+        optional :duration, type:Integer, desc: "Duration of song in seconds."
+        optional :album_id, type:Integer, desc: "ID of the album the song belongs to."
       end
       put ':id' do
         o = update(Song.find_by_id(params[:id])) { |a|
@@ -60,7 +60,7 @@ module V1
         format_entity o
       end
 
-      desc "Delete a song"
+      desc "Deletes a song."
       params do
         use :id
       end

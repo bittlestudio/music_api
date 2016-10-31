@@ -2,15 +2,15 @@ module APIHelpers
   extend Grape::API::Helpers
 
   params :name do
-    requires :name, type: String, allow_blank: false
+    requires :name, type: String, allow_blank: false, desc: "Name of the item."
   end
 
   params :optional_name do
-    optional :name, type: String, allow_blank: false
+    optional :name, type: String, allow_blank: false, desc: "Name of the item."
   end
 
   params :id do
-    requires :id, type: Integer
+    requires :id, type: Integer, desc: "ID of item to retrieve."
   end
 
   def validate_mime_type(type, validtypes)
