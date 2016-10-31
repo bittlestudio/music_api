@@ -43,6 +43,10 @@ module V1
       end
       post do
         o = create(Album.new(name: params[:name], artist_id: params[:artist_id])){ |a|
+
+          validate_mime_type params[:album_art].type, [Mime[:jpeg], Mime[:png], Mime[:gif]] if params[:album_art]
+          validate_size params[:album_art], 256
+
           add_to_collection(:songs, a.songs) { |item|
             Song.new(name: item.name, duration: item.duration)
           }
@@ -71,6 +75,10 @@ module V1
       end
       put ':id' do
         o = update(Album.find_by_id(params[:id])) { |a|
+
+          validate_mime_type params[:album_art].type, [Mime[:jpeg], Mime[:png], Mime[:gif]] if params[:album_art]
+          validate_size params[:album_art], 256
+
           add_to_collection(:songs, a.songs) { |item|
             Song.new(name: item.name, duration: item.duration)
           }

@@ -13,6 +13,14 @@ module APIHelpers
     requires :id, type: Integer
   end
 
+  def validate_mime_type(type, validtypes)
+    raise "Uploaded file MIME type is not valid. Valid types are #{validtypes.join ", "}" unless validtypes.include? type
+  end
+
+  def validate_size(file, maxsizekb)
+    raise "Maximum upload size is #{maxsizekb.to_s}KB" unless File.size(file[:tempfile])<= maxsizekb*1024
+  end
+
   def album_uploads_path
     '/uploads/albums/'
   end
