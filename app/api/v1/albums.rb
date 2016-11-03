@@ -54,7 +54,7 @@ module V1
           if a.save
             if params[:album_art]
               file = ActionDispatch::Http::UploadedFile.new(params[:album_art])
-              UploadHelper::upload_file("public/#{album_uploads_path}#{a.id}", file)
+              UploadHelper::upload_file("#{album_uploads_path}#{a.id}", file)
               a.album_art = file.original_filename
               a.save
             else
@@ -85,7 +85,7 @@ module V1
 
           if params[:album_art]
             file = ActionDispatch::Http::UploadedFile.new(params[:album_art])
-            path = "public/#{album_uploads_path}#{a.id}"
+            path = "#{album_uploads_path}#{a.id}"
 
             UploadHelper::delete_file(path, a.album_art) if a.album_art
             UploadHelper::upload_file(path, file)

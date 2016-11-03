@@ -22,11 +22,15 @@ module APIHelpers
   end
 
   def album_uploads_path
-    '/uploads/albums/'
+    APP_CONFIG['uploads_path'] + 'albums/'
+  end
+
+  def album_uploads_uri
+    '/' + APP_CONFIG['uploads_uri'] + 'albums/'
   end
 
   def generate_album_url(id, filename)
-    request.env['rack.url_scheme'] + '://' + request.env['HTTP_HOST'] + album_uploads_path + id.to_s + '/'
+    request.env['rack.url_scheme'] + '://' + request.env['HTTP_HOST'] + album_uploads_uri + id.to_s + '/'
   end
 
   def set_album_url (album)

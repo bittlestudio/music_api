@@ -1,0 +1,12 @@
+defaults: &defaults
+  uploads_uri: uploads/
+  uploads_path: public/uploads/
+
+development:
+  <<: *defaults
+
+test:
+  <<: *defaults
+
+production:
+  <<: *defaults
