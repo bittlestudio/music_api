@@ -35,7 +35,7 @@ module APIHelpers
   # -1 this should be in the Album model, an Albums URL is a concern of Album
   #### Being strict with some reusing concepts, I considered that the model Album should be independent of the current web implementation, as well as of
   #### where the data is stored physically. That would allow the model to be implemented in different platforms.
-  #### Also, I had some issues accessing server environment variables. However, I could have thought of have these methods either in the very model
+  #### Also, I had some issues accessing server environment variables from the model class. However, I could have thought of having these methods either in the very model
   #### or in a child model with a web mixin, and receive server environment variables as arguments.
   def generate_album_url(id, filename)
     request.env['rack.url_scheme'] + '://' + request.env['HTTP_HOST'] + album_uploads_uri + id.to_s + '/'
