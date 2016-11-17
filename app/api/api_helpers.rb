@@ -13,6 +13,8 @@ module APIHelpers
     requires :id, type: Integer, desc: "ID of item to retrieve."
   end
 
+  # +1 shows familiarity with Ruby syntactic sugar (trailing unless clause) - can help code readability
+  # -1 a lot of these are procedural methods that could be part of a model layer mixin or concern
   def validate_mime_type(type, validtypes)
     raise "Uploaded file MIME type is not valid. Valid types are #{validtypes.join ", "}" unless validtypes.include? type
   end
@@ -29,10 +31,12 @@ module APIHelpers
     '/' + APP_CONFIG['uploads_uri'] + 'albums/'
   end
 
+  # -1 this should be in the Album model, an Albums URL is a concern of Album
   def generate_album_url(id, filename)
     request.env['rack.url_scheme'] + '://' + request.env['HTTP_HOST'] + album_uploads_uri + id.to_s + '/'
   end
 
+  # -1 this should be in the Album model, an Albums URL is a concern of Album
   def set_album_url (album)
     album.data_url = generate_album_url album.id, album.album_art
   end
@@ -49,6 +53,9 @@ module APIHelpers
     entity || error!(:not_found, 404)
   end
 
+  # ? the purpose of this is to handle creation of an entity an do redirection in the same method?
+  #   why not reply with the created entity directly and not redirect the consumer/client?
+  #   is there a benefit to this that I'm missing?
   def create(entity)
     if yield entity
       header 'Location', request.url + '/' + entity.id.to_s
@@ -77,6 +84,7 @@ module APIHelpers
   def delete(entity)
     a = show entity
     yield a
+    # ? is this the proper HTTP status code if you're showing content to the client?
     status 204
     rescue Exception => msg
       error! msg, 422

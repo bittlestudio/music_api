@@ -19,6 +19,7 @@ ActiveRecord::Schema.define(version: 20161027192239) do
     t.string   "name"
     t.integer  "artist_id"
     t.string   "album_art"
+    # 0 could use t.timestamps here FYI
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["artist_id"], name: "index_albums_on_artist_id", using: :btree
@@ -40,6 +41,7 @@ ActiveRecord::Schema.define(version: 20161027192239) do
   create_table "playlists_songs", id: false, force: :cascade do |t|
     t.integer "song_id",     null: false
     t.integer "playlist_id", null: false
+    # +1 is the idea here to speed up lookup based on song OR playlist? Cool optimization
     t.index ["playlist_id", "song_id"], name: "index_playlists_songs_on_playlist_id_and_song_id", using: :btree
     t.index ["song_id", "playlist_id"], name: "index_playlists_songs_on_song_id_and_playlist_id", using: :btree
   end
@@ -53,6 +55,7 @@ ActiveRecord::Schema.define(version: 20161027192239) do
     t.index ["album_id"], name: "index_songs_on_album_id", using: :btree
   end
 
+  # +1 good that you thought of foreign keys here
   add_foreign_key "albums", "artists", on_delete: :cascade
   add_foreign_key "playlists_songs", "playlists", on_delete: :cascade
   add_foreign_key "playlists_songs", "songs", on_delete: :cascade

@@ -35,6 +35,7 @@ module V1
 
       desc "Returns one artist."
       params do
+        # +1 good use of helpers throughout for params blocks
         use :id
       end
       get ':id' do
