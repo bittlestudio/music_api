@@ -4,6 +4,8 @@ module V1
     helpers APIHelpers
 
     helpers do
+      # 0 you should check out Grape Entity. it does a great job of what this method
+      #   does, and much more
       def format_entity(entity)
         entity.as_json(include: [:songs])
       end

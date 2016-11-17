@@ -42,11 +42,26 @@ module V1
         optional :album_art, type:File, desc: "Album cover file. Must be .jpg, .png or .gif. Maximum size: 256 KB."
       end
       post do
+        # -1 use semantic names for variables, for maintainability.
+        # "album" and "song" are better than "o" and "a"
         o = create(Album.new(name: params[:name], artist_id: params[:artist_id])){ |a|
 
           validate_mime_type params[:album_art].type, [Mime[:jpeg], Mime[:png], Mime[:gif]] if params[:album_art]
           validate_size params[:album_art], 256
 
+          # -1 this is more procedural than OO. it's essentially a C function. passing a pointer
+          # and modifying the data instead of having an object own operations in its own domain
+          #
+          # pseudo code examples of alternatives:
+          #
+          # songs.each do |song|
+          #   album.add_song Song.new(...)
+          # end
+          #
+          # or:
+          # songs.each do |song|
+          #   album.songs << Song.new(...)
+          # end
           add_to_collection(:songs, a.songs) { |item|
             Song.new(name: item.name, duration: item.duration)
           }
@@ -83,6 +98,7 @@ module V1
             Song.new(name: item.name, duration: item.duration)
           }
 
+          # -1 this would be a great thing to DRY up into its own method since you use it above also
           if params[:album_art]
             file = ActionDispatch::Http::UploadedFile.new(params[:album_art])
             path = "#{album_uploads_path}#{a.id}"
