@@ -42,6 +42,7 @@ module APIHelpers
   end
 
   # -1 this should be in the Album model, an Albums URL is a concern of Album
+  #### Anyway, just looking at the name set_album_url, it makes it obvious that this should be part the Album model. So I definitely agree on this one.
   def set_album_url (album)
     album.data_url = generate_album_url album.id, album.album_art
   end
