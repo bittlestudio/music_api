@@ -6,6 +6,7 @@ module V1
     helpers do
       # 0 you should check out Grape Entity. it does a great job of what this method
       #   does, and much more
+      #### Didn't know about it. Will do!
       def format_entity(entity)
         entity.as_json(include: [:songs])
       end

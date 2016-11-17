@@ -42,6 +42,7 @@ ActiveRecord::Schema.define(version: 20161027192239) do
     t.integer "song_id",     null: false
     t.integer "playlist_id", null: false
     # +1 is the idea here to speed up lookup based on song OR playlist? Cool optimization
+    #### Yes. :D
     t.index ["playlist_id", "song_id"], name: "index_playlists_songs_on_playlist_id_and_song_id", using: :btree
     t.index ["song_id", "playlist_id"], name: "index_playlists_songs_on_song_id_and_playlist_id", using: :btree
   end

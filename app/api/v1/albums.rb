@@ -44,6 +44,7 @@ module V1
       post do
         # -1 use semantic names for variables, for maintainability.
         # "album" and "song" are better than "o" and "a"
+        #### Agree.
         o = create(Album.new(name: params[:name], artist_id: params[:artist_id])){ |a|
 
           validate_mime_type params[:album_art].type, [Mime[:jpeg], Mime[:png], Mime[:gif]] if params[:album_art]
@@ -62,6 +63,8 @@ module V1
           # songs.each do |song|
           #   album.songs << Song.new(...)
           # end
+          #### Agree. I tried to dry up some code, but I could have done it differently, starting by using the model layer.
+          #### I guess I just got enthusiastic with helpers and yield :P
           add_to_collection(:songs, a.songs) { |item|
             Song.new(name: item.name, duration: item.duration)
           }
@@ -99,6 +102,7 @@ module V1
           }
 
           # -1 this would be a great thing to DRY up into its own method since you use it above also
+          #### Definitely. I did create an upload file method though, but I could have gone a little bit further.
           if params[:album_art]
             file = ActionDispatch::Http::UploadedFile.new(params[:album_art])
             path = "#{album_uploads_path}#{a.id}"
