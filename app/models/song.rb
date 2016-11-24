@@ -6,7 +6,7 @@ class Song < ApplicationRecord
   validates :name, presence:true
   # +1 good validation
   #### Thanks. :D
-  validates :duration, presence:true, numericality: { only_integer: true }
+  validates :seconds, presence:true, numericality: { only_integer: true }
 
   # 0 instead of overriding duration, which matches the DB column, and then
   #   providing seconds as a separate getter, I would just make seconds the
@@ -17,10 +17,6 @@ class Song < ApplicationRecord
   #### Totally agree that would have been a cleaner and more maintainable approach. I guess I just created the db column with the name 'duration'
   #### and after all decided to leave it as is, after having all up and running. :S
   def duration
-    Time.at(self[:duration]).strftime("%M:%S") if self[:duration]
-  end
-
-  def seconds
-    self[:duration]
+    Time.at(self.seconds).strftime("%M:%S") if self.seconds
   end
 end

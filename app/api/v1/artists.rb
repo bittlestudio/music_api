@@ -39,7 +39,7 @@ module V1
         use :id
       end
       get ':id' do
-        format_entity show(Artist.find_by_id(params[:id]))
+        format_entity check_entity_exists(Artist.find_by_id(params[:id]))
       end
 
       desc "Adds an artist."
@@ -50,13 +50,16 @@ module V1
       end
       post do
         params[:albums]
-        o = create(Artist.new(name: params[:name], bio: params[:bio])) { |a|
-          add_to_collection(:albums, a.albums) { |item|
-            Album.new(name: item.name)
-          }
-          a.save
+        artist = create(Artist.new(name: params[:name], bio: params[:bio])) { |o|
+          if params[:albums]
+            params[:albums].each do |album|
+              o.albums << Album.new(name: album.name)
+            end
+          end
+
+          o.save
         }
-        format_entity o
+        format_entity artist
       end
 
       desc "Updates an artist."
@@ -69,13 +72,16 @@ module V1
       put ':id' do
         params[:albums]
 
-        o = update(Artist.find_by_id(params[:id])) { |a|
-          add_to_collection(:albums, a.albums) { |item|
-            Album.new(name: item.name)
-          }
-          a.update strong_params(params, :name, :bio)
+        artist = update(Artist.find_by_id(params[:id])) { |o|
+          if params[:albums]
+            params[:albums].each do |album|
+              o.albums << Album.new(name: album.name)
+            end
+          end
+
+          o.update strong_params(params, :name, :bio)
         }
-        format_entity o
+        format_entity artist
       end
 
       desc "Deletes an artist."
@@ -83,8 +89,8 @@ module V1
         use :id
       end
       delete ':id' do
-        delete(Artist.find_by_id(params[:id])) {|a|
-            a.destroy
+        delete(Artist.find_by_id(params[:id])) {|artist|
+          artist.destroy
         }
       end
     end

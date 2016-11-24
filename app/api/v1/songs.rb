@@ -14,7 +14,7 @@ module V1
           set_album_url (entity.album)
         end
 
-        entity.as_json(include: {album: {methods: :full_album_url, except: [:artist_id, :album_art], include: :artist}}, except: :album_id)
+        entity.as_json(include: {album: {methods: :full_album_url, except: [:artist_id, :album_art], include: :artist}}, except: [:album_id, :seconds], methods: :duration)
       end
     end
 
@@ -30,34 +30,34 @@ module V1
         use :id
       end
       get ':id' do
-        format_entity show(Song.find_by_id(params[:id]))
+        format_entity check_entity_exists(Song.find_by_id(params[:id]))
       end
 
       desc "Adds a song."
       params do
         use :name
-        requires :duration, type:Integer, desc: "Duration of song in seconds."
+        requires :seconds, type:Integer, desc: "Duration of song in seconds."
         requires :album_id, type:Integer, desc: "ID of the album the song belongs to."
       end
       post do
-        o = create(Song.new(name: params[:name], album_id: params[:album_id], duration: params[:duration])){ |a|
-          a.save
+        song = create(Song.new(name: params[:name], album_id: params[:album_id], seconds: params[:seconds])){ |o|
+          o.save
         }
-        format_entity o
+        format_entity song
       end
 
       desc "Updates a song."
       params do
         use :id
         use :optional_name
-        optional :duration, type:Integer, desc: "Duration of song in seconds."
+        optional :seconds, type:Integer, desc: "Duration of song in seconds."
         optional :album_id, type:Integer, desc: "ID of the album the song belongs to."
       end
       put ':id' do
-        o = update(Song.find_by_id(params[:id])) { |a|
-          a.update strong_params(params, :name, :album_id, :duration)
+        song = update(Song.find_by_id(params[:id])) { |o|
+          o.update strong_params(params, :name, :album_id, :seconds)
         }
-        format_entity o
+        format_entity song
       end
 
       desc "Deletes a song."
@@ -65,8 +65,8 @@ module V1
         use :id
       end
       delete ':id' do
-        delete(Song.find_by_id(params[:id])) {|a|
-          a.destroy
+        delete(Song.find_by_id(params[:id])) {|song|
+          song.destroy
         }
       end
 

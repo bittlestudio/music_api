@@ -14,7 +14,7 @@ module V1
         else
           set_album_url (entity)
         end
-        original = entity.as_json(include: [:artist, {songs:{except: :album_id}}], except: [:artist_id, :album_art], methods: :full_album_url)
+        original = entity.as_json(include: [:artist, {songs:{except: [:album_id, :seconds], methods: :duration}}], except: [:artist_id, :album_art], methods: :full_album_url)
       end
 
     end
@@ -31,7 +31,7 @@ module V1
         use :id
       end
       get ':id' do
-        format_entity (show(Album.find_by_id(params[:id])))
+        format_entity (check_entity_exists(Album.find_by_id(params[:id])))
       end
 
       desc "Adds an album."
@@ -45,10 +45,9 @@ module V1
         # -1 use semantic names for variables, for maintainability.
         # "album" and "song" are better than "o" and "a"
         #### Agree.
-        o = create(Album.new(name: params[:name], artist_id: params[:artist_id])){ |a|
+        album = create(Album.new(name: params[:name], artist_id: params[:artist_id])){ |o|
 
-          validate_mime_type params[:album_art].type, [Mime[:jpeg], Mime[:png], Mime[:gif]] if params[:album_art]
-          validate_size params[:album_art], 256
+          o.cover = params[:album_art]
 
           # -1 this is more procedural than OO. it's essentially a C function. passing a pointer
           # and modifying the data instead of having an object own operations in its own domain
@@ -65,22 +64,20 @@ module V1
           # end
           #### Agree. I tried to dry up some code, but I could have done it differently, starting by using the model layer.
           #### I guess I just got enthusiastic with helpers and yield :P
-          add_to_collection(:songs, a.songs) { |item|
-            Song.new(name: item.name, duration: item.duration)
-          }
+          if params[:songs]
+            params[:songs].each do |song|
+              o.songs << Song.new(name: song.name, seconds: song.seconds)
+            end
+          end
 
-          if a.save
-            if params[:album_art]
-              file = ActionDispatch::Http::UploadedFile.new(params[:album_art])
-              UploadHelper::upload_file("#{album_uploads_path}#{a.id}", file)
-              a.album_art = file.original_filename
-              a.save
-            else
-              true
+          if o.save
+            if o.cover
+              o.add_cover "#{album_uploads_path}#{o.id}"
+              o.save
             end
           end
         }
-        format_entity o
+        format_entity album
       end
 
       desc "Updates an album."
@@ -92,30 +89,25 @@ module V1
         optional :album_art, type:File, desc: "Album cover file. Must be .jpg, .png or .gif. Maximum size: 256 KB."
       end
       put ':id' do
-        o = update(Album.find_by_id(params[:id])) { |a|
+        album = update(Album.find_by_id(params[:id])) { |o|
 
-          validate_mime_type params[:album_art].type, [Mime[:jpeg], Mime[:png], Mime[:gif]] if params[:album_art]
-          validate_size params[:album_art], 256
+          o.cover = params[:album_art]
 
-          add_to_collection(:songs, a.songs) { |item|
-            Song.new(name: item.name, duration: item.duration)
-          }
+          if params[:songs]
+            params[:songs].each do |song|
+              o.songs << Song.new(name: song.name, seconds: song.seconds)
+            end
+          end
 
           # -1 this would be a great thing to DRY up into its own method since you use it above also
           #### Definitely. I did create an upload file method though, but I could have gone a little bit further.
-          if params[:album_art]
-            file = ActionDispatch::Http::UploadedFile.new(params[:album_art])
-            path = "#{album_uploads_path}#{a.id}"
 
-            UploadHelper::delete_file(path, a.album_art) if a.album_art
-            UploadHelper::upload_file(path, file)
-            a.album_art = file.original_filename
-          end
-          a.update strong_params(params, :name, :artist_id)
+          o.update_cover("#{album_uploads_path}#{o.id}")
+          o.update strong_params(params, :name, :artist_id)
         }
         #params.album_art.type
         #params.avatar.type     # => 'image/png'
-        format_entity o
+        format_entity album
       end
 
       desc "Deletes an album."
@@ -123,8 +115,8 @@ module V1
         use :id
       end
       delete ':id' do
-        delete(Album.find_by_id(params[:id])) {|a|
-          a.destroy
+        delete(Album.find_by_id(params[:id])) {|album|
+          album.destroy
         }
       end
     end

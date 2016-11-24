@@ -13,17 +13,6 @@ module APIHelpers
     requires :id, type: Integer, desc: "ID of item to retrieve."
   end
 
-  # +1 shows familiarity with Ruby syntactic sugar (trailing unless clause) - can help code readability
-  # -1 a lot of these are procedural methods that could be part of a model layer mixin or concern
-  #### I could have definitely implemented these two in the model layer.
-  def validate_mime_type(type, validtypes)
-    raise "Uploaded file MIME type is not valid. Valid types are #{validtypes.join ", "}" unless validtypes.include? type
-  end
-
-  def validate_size(file, maxsizekb)
-    raise "Maximum upload size is #{maxsizekb.to_s}KB" unless File.size(file[:tempfile])<= maxsizekb*1024
-  end
-
   def album_uploads_path
     APP_CONFIG['uploads_path'] + 'albums/'
   end
@@ -55,7 +44,7 @@ module APIHelpers
     ret
   end
 
-  def show(entity)
+  def check_entity_exists(entity)
     entity || error!(:not_found, 404)
   end
 
@@ -74,13 +63,12 @@ module APIHelpers
       raise entity.errors.to_a.join ', '
     end
 
-    rescue Exception => msg
-      error! msg, 422
-
+    #rescue Exception => msg
+      #error! msg, 422
   end
 
   def update(entity)
-    a = show entity
+    a = check_entity_exists entity
 
     if yield a
       a
@@ -92,7 +80,7 @@ module APIHelpers
   end
 
   def delete(entity)
-    a = show entity
+    a = check_entity_exists entity
     yield a
     # ? is this the proper HTTP status code if you're showing content to the client?
     #### Here, I'm also trying to comply with what I understood are RESTful best practices. As the delete action returns no content, it shows a 204.
@@ -103,11 +91,4 @@ module APIHelpers
       error! msg, 422
   end
 
-  def add_to_collection(key, collection)
-    if params[key]
-      params[key].each do |item|
-        collection << yield(item)
-      end
-    end
-  end
 end

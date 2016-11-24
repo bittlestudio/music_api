@@ -24,7 +24,7 @@ module V1
         use :id
       end
       get ':id' do
-        format_entity show(Playlist.find_by_id(params[:id]))
+        format_entity check_entity_exists(Playlist.find_by_id(params[:id]))
       end
 
       desc "Adds a playlist."
@@ -33,13 +33,18 @@ module V1
         optional :songs, type: JSON, desc: "Collection of songs of this album. Accepts song ID."
       end
       post do
-        o = create(Playlist.new(name: params[:name])){ |a|
-          add_to_collection(:songs, a.songs) { |item|
-            Song.find_by_id(item.id)
-          }
-          a.save
+        playlist = create(Playlist.new(name: params[:name])){ |o|
+          if params[:songs]
+            params[:songs].each do |song|
+              aux_song = Song.find_by_id(song.id)
+              raise "Song does not exist" unless aux_song
+              o.songs << aux_song
+            end
+          end
+
+          o.save
         }
-        format_entity o
+        format_entity playlist
       end
 
       desc "Updates a playlist."
@@ -49,15 +54,17 @@ module V1
         optional :songs, type: JSON, desc: "Collection of songs of this album. Accepts song ID."
       end
       put ':id' do
-        o = update(Playlist.find_by_id(params[:id])) { |a|
-          add_to_collection(:songs, a.songs) { |item|
-            s = Song.find_by_id(item.id)
-            raise "Song does not exist" unless s
-            s
-          }
-          a.update strong_params(params, :name)
+        playlist = update(Playlist.find_by_id(params[:id])) { |o|
+          if params[:songs]
+            params[:songs].each do |song|
+              aux_song = Song.find_by_id(song.id)
+              raise "Song does not exist" unless aux_song
+              o.songs << aux_song
+            end
+          end
+          o.update strong_params(params, :name)
         }
-        format_entity o
+        format_entity playlist
       end
 
       desc "Deletes a playlist."
@@ -65,24 +72,23 @@ module V1
         use :id
       end
       delete ':id' do
-        delete(Playlist.find_by_id(params[:id])) {|a|
-          a.destroy
+        delete(Playlist.find_by_id(params[:id])) {|playlist|
+          playlist.destroy
         }
       end
 
       desc "Deletes songs from playlist."
       params do
         use :id
-        #requires :song_id, type: Integer
         requires :songs, type: JSON, desc: "Collection of songs to delete. Accepts song ID."
       end
       delete ':id/songs' do
 
-        delete(Playlist.find_by_id(params[:id])) do |p|
-          params[:songs].each do |item|
-            s = Song.find_by_id(item.id)
-            raise "Song does not exist" unless s
-            p.songs.delete(Song.find_by_id(s.id))
+        delete(Playlist.find_by_id(params[:id])) do |playlist|
+          params[:songs].each do |song|
+            aux_song = Song.find_by_id(song.id)
+            raise "Song does not exist" unless aux_song
+            playlist.songs.delete(aux_song)
           end
         end
 
