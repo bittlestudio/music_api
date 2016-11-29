@@ -14,7 +14,8 @@ module V1
         else
           set_album_url (entity)
         end
-        original = entity.as_json(include: [:artist, {songs:{except: [:album_id, :seconds], methods: :duration}}], except: [:artist_id, :album_art], methods: :full_album_url)
+        #original = entity.as_json(include: [:artist, {songs:{except: [:album_id, :seconds], methods: :duration}}], except: [:artist_id, :album_art], methods: :full_album_url)
+        present entity, with: V1::Entities::Album, type: :album_full
       end
 
     end
@@ -31,7 +32,7 @@ module V1
         use :id
       end
       get ':id' do
-        format_entity (check_entity_exists(Album.find_by_id(params[:id])))
+        format_entity check_entity_exists(Album.find_by_id(params[:id]))
       end
 
       desc "Adds an album."

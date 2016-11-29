@@ -14,7 +14,8 @@ module V1
           set_album_url (entity.album)
         end
 
-        entity.as_json(include: {album: {methods: :full_album_url, except: [:artist_id, :album_art], include: :artist}}, except: [:album_id, :seconds], methods: :duration)
+        #entity.as_json(include: {album: {methods: :full_album_url, except: [:artist_id, :album_art], include: :artist}}, except: [:album_id, :seconds], methods: :duration)
+        present entity, with: V1::Entities::Song, type: :song_full
       end
     end
 

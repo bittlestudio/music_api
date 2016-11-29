@@ -8,7 +8,8 @@ module V1
       #   does, and much more
       #### Didn't know about it. Will do!
       def format_entity(entity)
-        entity.as_json(include: [:songs])
+        #entity.as_json(include: [:songs])
+        present entity, with: V1::Entities::Playlist
       end
     end
 

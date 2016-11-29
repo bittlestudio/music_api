@@ -18,7 +18,8 @@ module V1
           end
         end
 
-        entity.as_json(:include => {albums: {except: [:artist_id, :album_art], methods: :full_album_url}})
+        #entity.as_json(:include => {albums: {except: [:artist_id, :album_art], methods: :full_album_url}})
+        present entity, with: V1::Entities::Artist, type: :artist_full
       end
 
       params :bio do
