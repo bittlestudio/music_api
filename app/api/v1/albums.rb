@@ -8,11 +8,11 @@ module V1
       def format_entity(entity)
 
         if entity.respond_to? :each
-          entity.each do |e|
-            set_album_url (e)
+          entity.each do |album|
+            album.data_url = get_album_uploads_url
           end
         else
-          set_album_url (entity)
+          entity.data_url = get_album_uploads_url
         end
         #original = entity.as_json(include: [:artist, {songs:{except: [:album_id, :seconds], methods: :duration}}], except: [:artist_id, :album_art], methods: :full_album_url)
         present entity, with: V1::Entities::Album, type: :album_full
@@ -73,7 +73,7 @@ module V1
 
           if o.save
             if o.cover
-              o.add_cover "#{album_uploads_path}#{o.id}"
+              o.add_cover APP_CONFIG['uploads_path'] + 'albums/'
               o.save
             end
           end
@@ -103,7 +103,7 @@ module V1
           # -1 this would be a great thing to DRY up into its own method since you use it above also
           #### Definitely. I did create an upload file method though, but I could have gone a little bit further.
 
-          o.update_cover("#{album_uploads_path}#{o.id}")
+          o.update_cover APP_CONFIG['uploads_path'] + 'albums/'
           o.update strong_params(params, :name, :artist_id)
         }
         #params.album_art.type

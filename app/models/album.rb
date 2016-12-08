@@ -1,14 +1,15 @@
 class Album < ApplicationRecord
   include HasName, HasFiles
 
-  attr_accessor :data_url
-  attr_reader :cover
+  attr_reader :cover, :data_url
 
   has_many :songs, dependent: :destroy
   belongs_to :artist
   validates :name, presence:true
 
-  #after_create :upload_cover
+  def data_url=(value)
+    @data_url = value + self.id.to_s + '/'
+  end
 
   def full_album_url
     if self.data_url && self.album_art
@@ -26,20 +27,22 @@ class Album < ApplicationRecord
 
   def add_cover(path)
     if @cover
-      upload_cover(path)
+      path = path + self.id.to_s + '/'
+      upload_cover path
     end
   end
 
   def update_cover(path)
     if @cover
-      delete_file(path, album_art)
-      upload_cover (path)
+      path = path + self.id.to_s + '/'
+      delete_file path, album_art
+      upload_cover path
     end
   end
 
   private
   def upload_cover(path)
-    file = upload_file(path, @cover)
+    file = upload_file path, @cover
     self.album_art = file.original_filename
   end
 end

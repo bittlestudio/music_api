@@ -7,11 +7,11 @@ module V1
       def format_entity(entity)
 
         if entity.respond_to? :each
-          entity.each do |e|
-            set_album_url (e.album)
+          entity.each do |song|
+            song.album.data_url = get_album_uploads_url
           end
         else
-          set_album_url (entity.album)
+          entity.album.data_url = get_album_uploads_url
         end
 
         #entity.as_json(include: {album: {methods: :full_album_url, except: [:artist_id, :album_art], include: :artist}}, except: [:album_id, :seconds], methods: :duration)

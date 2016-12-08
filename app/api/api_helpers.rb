@@ -13,27 +13,27 @@ module APIHelpers
     requires :id, type: Integer, desc: "ID of item to retrieve."
   end
 
-  def album_uploads_path
-    APP_CONFIG['uploads_path'] + 'albums/'
-  end
-
-  def album_uploads_uri
-    '/' + APP_CONFIG['uploads_uri'] + 'albums/'
-  end
-
   # -1 this should be in the Album model, an Albums URL is a concern of Album
   #### Being strict with some reusing concepts, I considered that the model Album should be independent of the current web implementation, as well as of
   #### where the data is stored physically. That would allow the model to be implemented in different platforms.
   #### Also, I had some issues accessing server environment variables from the model class. However, I could have thought of having these methods either in the very model
   #### or in a child model with a web mixin, and receive server environment variables as arguments.
-  def generate_album_url(id, filename)
-    request.env['rack.url_scheme'] + '://' + request.env['HTTP_HOST'] + album_uploads_uri + id.to_s + '/'
+
+  #### Now this is a method that generates and returns the root URL for uploads.
+  def get_uploads_url
+    request.env['rack.url_scheme'] + '://' + request.env['HTTP_HOST'] + '/' + APP_CONFIG['uploads_uri']
   end
 
   # -1 this should be in the Album model, an Albums URL is a concern of Album
   #### Anyway, just looking at the name set_album_url, it makes it obvious that this should be part the Album model. So I definitely agree on this one.
-  def set_album_url (album)
-    album.data_url = generate_album_url album.id, album.album_art
+
+  #### Assuming the model expects the environment url to be set instead of getting it from somewhere (to allow independence from the implementation),
+  #### I need to set it from the controller. Instead of forming the URL every time I need it, I'm generating it once here as a helper to avoid code duplication.
+  #### The old method set_album_url was not only generating the url once, but also setting it to the album object received as a parameter.
+  #### To avoid confusions in terms of MVC layers responsibilities, I will set the url manually every time I need it, without delegating to a helper method.
+  #### However, I'm still using the url generator below.
+  def get_album_uploads_url
+    get_uploads_url + 'albums/'
   end
 
   def strong_params(params, *keys)

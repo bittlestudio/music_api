@@ -7,14 +7,14 @@ module V1
       def format_entity(entity)
 
         if entity.respond_to? :each
-          entity.each do |e|
-            e.albums.each do |a|
-              set_album_url (a)
+          entity.each do |artist|
+            artist.albums.each do |album|
+              album.data_url = get_album_uploads_url
             end
           end
         else
-          entity.albums.each do |a|
-            set_album_url (a)
+          entity.albums.each do |album|
+            album.data_url = get_album_uploads_url
           end
         end
 
